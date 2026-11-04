@@ -1,0 +1,756 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>見ないで打つ練習</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one-column workbench. Course picker, then the practice card (prompt, instant feedback, keycap keyboard) as the hero; records and habits below. */
+:root{
+  --bg:#ECEFF3; --surface:#FFFFFF; --surface-2:#F3F5F8; --ink:#17202B; --ink-2:#556170; --ink-3:#8E98A5; --line:#D7DDE4;
+  --accent:#2453C4; --accent-soft:#DFE7FB; --on-accent:#FFFFFF;
+  --ok:#1C8253; --ok-soft:#DAF0E3; --miss:#C5352B; --miss-soft:#FBE0DD; --on-miss:#FFFFFF;
+  --key:#FCFDFE; --key-edge:#C5CDD7; --key-ink:#28313D; --wrong-key:#B66B18; --wrong-key-ring:#F3D69C;
+  --f-pinky:#F5E1EB; --f-ring:#E3E6F8; --f-middle:#DAEFE6; --f-index:#F7ECD2; --f-thumb:#E9ECF0;
+  --font-jp:"BIZ UDPGothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11151B; --surface:#192029; --surface-2:#202833; --ink:#E5E9EF; --ink-2:#A0AAB7; --ink-3:#6E7886; --line:#2C3541;
+    --accent:#86A6F4; --accent-soft:#223152; --on-accent:#0F1830;
+    --ok:#62CC97; --ok-soft:#173428; --miss:#F27D72; --miss-soft:#3F201D; --on-miss:#2A0E0B;
+    --key:#232B36; --key-edge:#3A4452; --key-ink:#DCE2EA; --wrong-key:#EFB85A; --wrong-key-ring:#654720;
+    --f-pinky:#3A2531; --f-ring:#272C47; --f-middle:#1D3630; --f-index:#3A3220; --f-thumb:#272D36;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151B; --surface:#192029; --surface-2:#202833; --ink:#E5E9EF; --ink-2:#A0AAB7; --ink-3:#6E7886; --line:#2C3541;
+  --accent:#86A6F4; --accent-soft:#223152; --on-accent:#0F1830;
+  --ok:#62CC97; --ok-soft:#173428; --miss:#F27D72; --miss-soft:#3F201D; --on-miss:#2A0E0B;
+  --key:#232B36; --key-edge:#3A4452; --key-ink:#DCE2EA; --wrong-key:#EFB85A; --wrong-key-ring:#654720;
+  --f-pinky:#3A2531; --f-ring:#272C47; --f-middle:#1D3630; --f-index:#3A3220; --f-thumb:#272D36;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-jp);font-size:15px;line-height:1.7}
+.wrap{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px;display:grid;gap:22px}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.head h1{font-size:clamp(24px,5vw,30px);font-weight:700;letter-spacing:.02em}
+.head p{color:var(--ink-2);margin-top:6px;max-width:60ch}
+.notice{background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:14px}
+
+.label{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--ink-2)}
+.courses{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px;margin-top:8px}
+.course{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:baseline;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.course:hover{border-color:var(--ink-3)}
+.course .no{grid-row:span 2;font-family:var(--font-mono);font-weight:600;font-size:13px;color:var(--ink-3)}
+.course .nm{font-weight:700;font-size:14px}
+.course .ds{font-size:12px;color:var(--ink-2);line-height:1.5}
+.course[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.course[aria-pressed="true"] .no{color:var(--accent)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px clamp(14px,3vw,24px) 20px}
+.practice{display:grid;gap:16px}
+.bar{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:space-between;align-items:center}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.meta b{color:var(--ink)}
+.opts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden;font-size:12px}
+.seg-label{padding:4px 8px;color:var(--ink-2);background:var(--surface-2);border-right:1px solid var(--line)}
+.seg button{border:0;background:transparent;padding:4px 9px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.toggle{border:1px solid var(--line);border-radius:8px;background:transparent;padding:4px 10px;font-size:12px}
+.toggle[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+
+.stage{position:relative;display:grid;gap:12px;min-height:220px}
+.prompt{display:grid;gap:4px;min-width:0}
+.jp{font-size:clamp(20px,4.2vw,27px);font-weight:700;line-height:1.5}
+.kana{font-size:16px;color:var(--ink-2);letter-spacing:.04em}
+.kana.big{font-size:clamp(24px,5vw,32px);font-weight:700;color:var(--ink)}
+.kana .done{color:var(--ink-3)}
+.kana .cur{color:var(--accent);text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:2px}
+.romaji{font-family:var(--font-mono);font-weight:500;font-size:clamp(20px,4.4vw,28px);line-height:1.55;word-break:break-all;letter-spacing:.03em;margin-top:4px}
+.romaji.big{font-size:clamp(26px,6vw,36px);letter-spacing:.08em}
+.ch.done{color:var(--ink-3)}
+.ch.sp{color:var(--ink-3)}
+.ch.cur{color:var(--accent);background:var(--accent-soft);border-radius:3px;box-shadow:inset 0 -3px 0 var(--accent)}
+.ch.cur.err{color:var(--miss);background:var(--miss-soft);box-shadow:inset 0 -3px 0 var(--miss);animation:shake .2s}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.ch{display:inline-block}
+
+.fb{background:var(--surface-2);border-radius:10px;padding:10px 14px;font-size:14px;min-height:5.2em;display:grid;gap:4px;align-content:start}
+#fbMain{transition:opacity .25s}
+#fbMain.faded{opacity:.55}
+.fb-hint{color:var(--accent);font-weight:700}
+.diag{color:var(--ink-2);font-size:13px}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;padding:0 7px;border-radius:4px;margin-right:6px;vertical-align:1px}
+.tag.miss{background:var(--miss);color:var(--on-miss)}
+.tag.tip{background:var(--line);color:var(--ink-2)}
+kbd.kk{font-family:var(--font-mono);font-weight:600;padding:0 7px;border-radius:5px;border:1px solid var(--key-edge);border-bottom-width:2px;background:var(--key);color:var(--key-ink);font-size:.95em}
+kbd.kk.miss{background:var(--miss);color:var(--on-miss);border-color:var(--miss)}
+kbd.kk.ok{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+kbd.kk.nx{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+
+.veil{position:absolute;inset:0;border:1px dashed var(--accent);border-radius:12px;background:color-mix(in srgb,var(--surface) 88%,transparent);color:var(--accent);font-weight:700;font-size:15px;display:grid;place-items:center;padding:16px}
+
+.summary{display:grid;gap:14px}
+.sum-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.sum-nums div{display:grid;gap:0;padding:10px 12px;border-radius:10px;background:var(--surface-2)}
+.sum-nums .n{font-family:var(--font-mono);font-weight:600;font-size:clamp(24px,5vw,32px);font-variant-numeric:tabular-nums;line-height:1.2}
+.sum-nums .n small{font-size:.5em;margin-left:2px;color:var(--ink-2)}
+.sum-nums .l{font-size:12px;color:var(--ink-2)}
+.sum-msg{max-width:60ch}
+.sum-miss h3,.rec h3{font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
+.plist{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}
+.plist li{display:grid;gap:0}
+.plist .d{font-size:12px;color:var(--ink-2)}
+.sum-actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 14px;font-weight:700;font-size:14px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn kbd{font-family:var(--font-mono);font-size:11px;font-weight:500;opacity:.8;margin-left:6px}
+
+.kb{container-type:inline-size;width:100%;max-width:660px;margin-inline:auto}
+.kb.mini{max-width:420px;margin-inline:0}
+.kb-rows{--k:min(54px,7.4vw);display:grid;gap:calc(var(--k)*.1)}
+@supports (width:1cqw){.kb-rows{--k:calc(100cqw / 11.4)}}
+.kb-row{display:flex;gap:calc(var(--k)*.1);padding-left:calc(var(--k)*var(--off,0))}
+.space-row{padding-left:calc(var(--k)*3.3)}
+.key{position:relative;flex:none;width:calc(var(--k)*.9);height:calc(var(--k)*.84);display:grid;place-items:center;background:var(--key);border:1px solid var(--key-edge);border-bottom-width:3px;border-radius:calc(var(--k)*.14);font-family:var(--font-mono);font-weight:500;font-size:max(10px,calc(var(--k)*.32));color:var(--key-ink);transition:background-color .15s,color .15s,border-color .15s}
+.key.space{width:calc(var(--k)*5.4);font-family:var(--font-jp);font-size:max(10px,calc(var(--k)*.24))}
+.key.bump::after{content:"";position:absolute;bottom:16%;left:39%;width:22%;height:2px;border-radius:1px;background:currentColor;opacity:.55}
+.kb.fingers .key.f-pinky{background:var(--f-pinky)}
+.kb.fingers .key.f-ring{background:var(--f-ring)}
+.kb.fingers .key.f-middle{background:var(--f-middle)}
+.kb.fingers .key.f-index{background:var(--f-index)}
+.kb.fingers .key.f-thumb{background:var(--f-thumb)}
+.key.is-next{background:var(--accent-soft)!important;border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.key.is-miss{background:var(--key)!important;border:2px solid var(--wrong-key);border-bottom-width:3px;color:var(--key-ink);box-shadow:0 0 0 3px var(--wrong-key-ring);z-index:2}
+.key.is-roundmiss{background:var(--miss-soft)!important;border-color:var(--miss);color:var(--miss)}
+.key.is-roundmiss::before{content:attr(data-n);position:absolute;top:-7px;right:-7px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--miss);color:var(--on-miss);font-size:10px;line-height:17px;text-align:center;font-family:var(--font-mono);z-index:1}
+.key.hit{animation:hit .16s ease-out}
+@keyframes hit{0%{transform:translateY(2px)}100%{transform:none}}
+.key.heat{background:color-mix(in srgb,var(--miss) var(--h),var(--key))!important}
+.key.heat.hot{color:var(--on-miss);border-color:var(--miss)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:14px;border-radius:4px;border:1px solid var(--key-edge);display:inline-block}
+
+.rec{display:grid;gap:18px}
+.rec-head{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.rec-head h2,.tips h2{font-size:17px;font-weight:700}
+.rec-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+.note{font-size:12px;color:var(--ink-2);margin-top:8px}
+.empty{font-size:14px;color:var(--ink-2)}
+.reset{display:flex;gap:6px;align-items:center;font-size:13px}
+.reset .btn{padding:4px 10px;font-size:12px}
+.reset .btn.danger{background:var(--miss);border-color:var(--miss);color:var(--on-miss)}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:700;color:var(--ink-2);font-size:12px}
+td.num,th.num{text-align:right}
+
+.tips{display:grid;gap:10px;padding-inline:4px}
+.tips ul{margin:0;padding-left:1.2em;display:grid;gap:6px;max-width:62ch}
+.tips b{font-weight:700}
+
+/* 静かに学べる補助UI */
+/* 間違えて押したキーは、穏やかな琥珀色の枠で場所を知らせる。 */
+.key-guide{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 20px;margin-top:12px;padding:9px 12px;border-radius:9px;background:var(--surface-2);color:var(--ink-2);font-size:12px}
+.key-guide span{display:inline-flex;align-items:center;gap:7px}
+.key-guide .swatch{display:inline-block;width:15px;height:15px;border-radius:4px;background:var(--key);border:2px solid var(--wrong-key);box-shadow:0 0 0 2px var(--wrong-key-ring)}
+.key-guide .swatch.next{background:var(--accent-soft);border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.practice-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.practice-actions .btn{font-size:12px;padding:6px 10px}
+.btn.subtle{background:var(--surface-2);border-color:var(--line);font-weight:500}
+.practice-note{font-size:12px;color:var(--ink-2);line-height:1.6}
+.mode-desc{color:var(--ink-2);font-size:12px;line-height:1.7;margin-top:-9px}
+.pause-panel{position:absolute;inset:0;z-index:3;background:var(--surface);border:1px solid var(--line);border-radius:12px;display:grid;place-items:center;text-align:center;padding:20px}
+.pause-panel>div{display:grid;justify-items:center;gap:12px;max-width:35ch}
+.pause-panel p{color:var(--ink-2);font-size:14px}
+.pause-panel .pause-title{font-weight:700;color:var(--ink);font-size:20px}
+.record-summary{cursor:pointer;font-weight:700;padding:2px 0;list-style-position:inside}
+.records-content{display:grid;gap:18px;padding-top:20px}
+.sum-nums.calm{grid-template-columns:repeat(2,1fr)}
+.sum-miss details,.sum-miss summary{font-size:13px}
+.sum-miss summary{cursor:pointer;color:var(--ink-2);font-weight:700;margin-bottom:8px}
+.practice.is-calm .ch.cur.err{animation:none}
+@media(max-width:420px){.sum-nums.calm .n{font-size:23px}}
+
+
+@media (max-width:620px){.rec-grid{grid-template-columns:minmax(0,1fr)}.kb.mini{max-width:none}}
+@media (prefers-reduced-motion:reduce){.ch.cur.err,.key.hit{animation:none}*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <h1>見ないで打つ練習</h1>
+    <p>速さより、手元を見ずにキーを探す感覚を育てましょう。間違えても、正しい位置を確かめてから打ち直せば大丈夫。今日は少しだけでも十分です。</p>
+  </header>
+
+  <p class="notice" id="touchNote" hidden>このページはパソコンのキーボードで使います。PCのブラウザでこのページを開いて練習してください。</p>
+
+  <section aria-labelledby="cTitle">
+    <h2 id="cTitle" class="label">コース</h2>
+    <div class="courses" id="courses"></div>
+  </section>
+
+  <section class="card practice" aria-label="練習">
+    <div class="bar">
+      <div class="meta" id="meta"></div>
+      <div class="opts">
+        <button class="toggle" id="calmBtn" aria-pressed="true">気楽モード ON</button>
+        <button class="toggle" id="shortBtn" aria-pressed="true">短め練習 ON</button>
+        <button class="toggle" id="fingerBtn" aria-pressed="true">指の色分け</button>
+      </div>
+    </div>
+    <p class="mode-desc" id="modeDesc">気楽モードではミスの赤い演出と練習中の成績表示を控え、記録は閉じておきます。</p>
+
+    <div class="stage">
+      <div class="prompt" id="prompt">
+        <p class="jp" id="jp"></p>
+        <p class="kana" id="kana"></p>
+        <p class="romaji" id="romaji" aria-label="打つローマ字"></p>
+      </div>
+      <div class="fb" id="fb" aria-live="polite">
+        <p id="fbMain"></p>
+        <p id="fbHint" class="fb-hint"></p>
+      </div>
+      <div class="summary" id="summary" hidden></div>
+      <div class="pause-panel" id="pausePanel" hidden>
+        <div>
+          <p class="pause-title">ひと休みしましょう</p>
+          <p>肩と指の力を抜いて、再開したくなったら戻ってください。休憩時間は打鍵速度の計算に含めません。</p>
+          <button class="btn primary" id="resumeBtn">練習に戻る</button>
+        </div>
+      </div>
+      <button class="veil" id="veil" hidden>ここをクリックしてから打ち始めてください</button>
+    </div>
+
+    <div class="practice-actions" id="practiceActions">
+      <button class="btn subtle" id="revealBtn" type="button">今のキーのヒントを見る</button>
+      <button class="btn subtle" id="pauseBtn" type="button">ひと休み</button>
+      <span class="practice-note">自動ヒントなし。必要なときだけボタンで確認できます。</span>
+    </div>
+    <div class="kb fingers" id="kb"></div>
+    <div class="key-guide" id="keyGuide" hidden aria-live="polite"></div>
+    <div class="legend" aria-label="指の色">
+      <span><i style="background:var(--f-pinky)"></i>小指</span>
+      <span><i style="background:var(--f-ring)"></i>薬指</span>
+      <span><i style="background:var(--f-middle)"></i>中指</span>
+      <span><i style="background:var(--f-index)"></i>人差し指</span>
+      <span><i style="background:var(--f-thumb)"></i>親指</span>
+    </div>
+  </section>
+
+  <section class="card rec" aria-label="練習の記録">
+    <details id="recordsFold" open>
+      <summary class="record-summary">練習の記録（見たいときだけ開く）</summary>
+      <div class="records-content">
+    <div class="rec-head">
+      <h2 id="rTitle">間違えやすいキー</h2>
+      <div class="reset" id="reset"></div>
+    </div>
+    <div class="rec-grid">
+      <div>
+        <div class="kb mini" id="kbHeat"></div>
+        <p class="note">赤いほどミスの割合が高いキーです（3回以上打ったキーだけ色がつきます）。</p>
+      </div>
+      <div style="display:grid;gap:16px">
+        <div><h3>ミスの多いキー</h3><div id="weakList"></div></div>
+        <div><h3>よくある押し間違い</h3><div id="pairList"></div></div>
+      </div>
+    </div>
+    <div>
+      <h3>最近の練習</h3>
+      <div class="tbl-wrap" id="hist"></div>
+    </div>
+      </div>
+    </details>
+  </section>
+
+  <section class="tips" aria-labelledby="tTitle">
+    <h2 id="tTitle">普段の入力に移すコツ</h2>
+    <ul>
+      <li><b>見ないで打つ場面を1つだけ決める。</b>チャットやメモなど、急がない入力だけで十分です。</li>
+      <li><b>ミスしても手元を見ずに直す。</b>BackSpaceは右手の小指を右上に伸ばせば届きます。</li>
+      <li><b>迷ったら突起に戻る。</b>FとJの小さな突起を人差し指で探してから打ち直します。</li>
+      <li><b>苦しくなったら短いコースで終える。</b>速さも正確率も、その日の調子で変わります。途中の休憩も練習の一部です。</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+// ---------- keyboard model ----------
+const ROWS=[
+  {off:0,   keys:"1234567890-".split("")},
+  {off:0.5, keys:"qwertyuiop".split("")},
+  {off:0.75,keys:"asdfghjkl;".split("")},
+  {off:1.25,keys:"zxcvbnm,./".split("")}
+];
+const COLF=["L5","L4","L3","L2","L2","R2","R2","R3","R4","R5","R5"];
+const KEY={};
+ROWS.forEach((row,r)=>row.keys.forEach((k,c)=>{KEY[k]={f:COLF[c],r:r};}));
+KEY[" "]={f:"T",r:4};
+const FN={L5:"左手の小指",L4:"左手の薬指",L3:"左手の中指",L2:"左手の人差し指",R2:"右手の人差し指",R3:"右手の中指",R4:"右手の薬指",R5:"右手の小指",T:"親指"};
+const FCLS={L5:"pinky",L4:"ring",L3:"middle",L2:"index",R2:"index",R3:"middle",R4:"ring",R5:"pinky",T:"thumb"};
+const ROWN=["数字の段","上の段","ホーム段","下の段","スペース"];
+const lab=k=>k===" "?"スペース":k.toUpperCase();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function diag(exp,got){
+  const a=KEY[exp],b=KEY[got]; if(!a||!b) return "";
+  if(a.f==="T") return "スペースキーは親指で打ちます。";
+  if(b.f==="T") return "スペースキーを押していました。";
+  if(a.f===b.f){
+    if(a.r!==b.r) return "指は合っています。"+ROWN[b.r]+"を押していて、正しくは"+ROWN[a.r]+"です。";
+    return "指は合っています。人差し指が受け持つ2列のうち、となりの列を押しています。";
+  }
+  if(a.f[0]===b.f[0]) return "同じ手の別の指です。"+FN[a.f].slice(3)+"で打つキーに、"+FN[b.f].slice(3)+"が出ていました。";
+  return "反対の手のキーです。"+FN[a.f]+"で打ちます。";
+}
+function shortDiag(exp,got){
+  const a=KEY[exp],b=KEY[got]; if(!a||!b) return "";
+  if(a.f===b.f) return a.r!==b.r?"指は正しく、段がずれています":"指は正しく、列がずれています";
+  if(a.f!=="T"&&b.f!=="T"&&a.f[0]===b.f[0]) return "同じ手の別の指を使っています";
+  return "反対の手を使っています";
+}
+
+// ---------- romaji engine ----------
+const BASE={},YOUON={};
+function parse(src,dst){src.trim().split(/\s+/).forEach(p=>{const i=p.indexOf(":");dst[p.slice(0,i)]=p.slice(i+1).split("/");});}
+parse("あ:a い:i う:u/wu え:e お:o か:ka/ca き:ki く:ku/cu/qu け:ke こ:ko/co さ:sa し:shi/si/ci す:su せ:se/ce そ:so た:ta ち:chi/ti つ:tsu/tu て:te と:to な:na に:ni ぬ:nu ね:ne の:no は:ha ひ:hi ふ:fu/hu へ:he ほ:ho ま:ma み:mi む:mu め:me も:mo や:ya ゆ:yu よ:yo ら:ra り:ri る:ru れ:re ろ:ro わ:wa を:wo が:ga ぎ:gi ぐ:gu げ:ge ご:go ざ:za じ:ji/zi ず:zu ぜ:ze ぞ:zo だ:da ぢ:di づ:du で:de ど:do ば:ba び:bi ぶ:bu べ:be ぼ:bo ぱ:pa ぴ:pi ぷ:pu ぺ:pe ぽ:po ぁ:la/xa ぃ:li/xi ぅ:lu/xu ぇ:le/xe ぉ:lo/xo ゃ:lya/xya ゅ:lyu/xyu ょ:lyo/xyo ー:- 、:, 。:.",BASE);
+parse("きゃ:kya きゅ:kyu きょ:kyo しゃ:sha/sya しゅ:shu/syu しょ:sho/syo しぇ:she/sye ちゃ:cha/tya/cya ちゅ:chu/tyu/cyu ちょ:cho/tyo/cyo ちぇ:che/tye/cye にゃ:nya にゅ:nyu にょ:nyo ひゃ:hya ひゅ:hyu ひょ:hyo みゃ:mya みゅ:myu みょ:myo りゃ:rya りゅ:ryu りょ:ryo ぎゃ:gya ぎゅ:gyu ぎょ:gyo じゃ:ja/zya/jya じゅ:ju/zyu/jyu じょ:jo/zyo/jyo じぇ:je/zye/jye びゃ:bya びゅ:byu びょ:byo ぴゃ:pya ぴゅ:pyu ぴょ:pyo ふぁ:fa ふぃ:fi ふぇ:fe ふぉ:fo てぃ:thi でぃ:dhi",YOUON);
+Object.keys(YOUON).forEach(k=>{
+  const a=k[0],b=k[1],extra=[];
+  (BASE[a]||[]).forEach(x=>(BASE[b]||[]).forEach(y=>extra.push(x+y)));
+  YOUON[k]=Array.from(new Set(YOUON[k].concat(extra)));
+});
+const uniq=a=>Array.from(new Set(a));
+
+function tokenize(s){
+  const raw=[];
+  for(let i=0;i<s.length;){
+    const two=s.slice(i,i+2);
+    if(YOUON[two]){raw.push({k:two,opts:YOUON[two]});i+=2;continue;}
+    const c=s[i];
+    if(c==="っ"||c==="ん"){raw.push({k:c});i++;continue;}
+    raw.push({k:c,opts:BASE[c]||[c.toLowerCase()]});i++;
+  }
+  const out=[];
+  for(let i=raw.length-1;i>=0;i--){
+    const u=raw[i],next=out[0];
+    if(u.k==="ん"){
+      const single=next&&next.opts.every(o=>/^[bcdfghjklmpqrstvwxz]/.test(o));
+      out.unshift({k:"ん",opts:single?["n","nn","xn"]:["nn","xn"]});
+    }else if(u.k==="っ"){
+      const cons=next?next.opts.filter(o=>/^[bcdfghjkmpqrstvwyz]/.test(o)):[];
+      const small=["ltu","xtu","ltsu","xtsu"];
+      if(next&&!next.merged&&cons.length){
+        const opts=cons.map(o=>o[0]+o);
+        small.forEach(s=>next.opts.forEach(o=>opts.push(s+o)));
+        out[0]={k:"っ"+next.k,opts:uniq(opts),merged:true};
+      }else out.unshift({k:"っ",opts:small});
+    }else out.unshift(u);
+  }
+  return out;
+}
+
+function Engine(units){this.u=units;this.i=0;this.buf="";this.typed=[];this.done=units.length===0;}
+Engine.prototype.disp=function(k,buf){const u=this.u[k];return u.opts.find(o=>o.startsWith(buf))||u.opts[0];};
+Engine.prototype.expected=function(){
+  if(this.done) return null;
+  const d=this.disp(this.i,this.buf);
+  if(d.length>this.buf.length) return d[this.buf.length];
+  return this.i+1<this.u.length?this.disp(this.i+1,"")[0]:null;
+};
+Engine.prototype.complete=function(){this.typed.push(this.buf);this.i++;this.buf="";if(this.i>=this.u.length)this.done=true;};
+Engine.prototype.feed=function(ch){
+  const u=this.u[this.i],nb=this.buf+ch;
+  const cand=u.opts.filter(o=>o.startsWith(nb));
+  if(cand.length){
+    this.buf=nb;
+    if(cand.indexOf(nb)>=0&&!cand.some(o=>o.length>nb.length)) this.complete();
+    return true;
+  }
+  if(this.buf&&u.opts.indexOf(this.buf)>=0&&this.i+1<this.u.length){this.complete();return this.feed(ch);}
+  return false;
+};
+
+// ---------- content ----------
+const VOWEL="あい いえ うえ あおい いいえ かお あさ いか あき かき すし あし いけ さけ しお こえ ふく あじ はし すき かさ おかし かぐ しか すいか さがす はこ ほし ふえ あかい おおきい かしこい きく かす".split(" ");
+const WORDS=[["確認","かくにん"],["資料","しりょう"],["会議","かいぎ"],["連絡","れんらく"],["提出","ていしゅつ"],["共有","きょうゆう"],["予定","よてい"],["仕事","しごと"],["会社","かいしゃ"],["メール","めーる"],["電話","でんわ"],["報告","ほうこく"],["相談","そうだん"],["内容","ないよう"],["時間","じかん"],["企画","きかく"],["経理","けいり"],["在庫","ざいこ"],["出荷","しゅっか"],["納期","のうき"],["部署","ぶしょ"],["上司","じょうし"],["同期","どうき"],["ありがとう","ありがとう"],["よろしく","よろしく"],["すみません","すみません"],["お願い","おねがい"],["ちょっと","ちょっと"],["日本","にほん"],["東京","とうきょう"],["今日","きょう"],["明日","あした"],["来週","らいしゅう"],["請求書","せいきゅうしょ"],["見積もり","みつもり"],["担当","たんとう"],["変更","へんこう"],["対応","たいおう"],["結果","けっか"],["調整","ちょうせい"],["取引先","とりひきさき"],["営業","えいぎょう"],["会計","かいけい"],["データ","でーた"],["ファイル","ふぁいる"]];
+const SENT=[["お疲れ様です。","おつかれさまです。"],["ご確認よろしくお願いいたします。","ごかくにんよろしくおねがいいたします。"],["承知しました。","しょうちしました。"],["本日の資料を共有します。","ほんじつのしりょうをきょうゆうします。"],["少々お待ちください。","しょうしょうおまちください。"],["明日までに提出します。","あしたまでにていしゅつします。"],["会議の日程を調整させてください。","かいぎのにっていをちょうせいさせてください。"],["添付ファイルをご確認ください。","てんぷふぁいるをごかくにんください。"],["引き続きよろしくお願いします。","ひきつづきよろしくおねがいします。"],["ご連絡ありがとうございます。","ごれんらくありがとうございます。"],["返信が遅くなり申し訳ありません。","へんしんがおそくなりもうしわけありません。"],["在庫の数量を確認しました。","ざいこのすうりょうをかくにんしました。"],["来週の打ち合わせは水曜日です。","らいしゅうのうちあわせはすいようびです。"],["見積書を作成しました。","みつもりしょをさくせいしました。"],["議事録を共有いたします。","ぎじろくをきょうゆういたします。"],["担当者に確認してご連絡します。","たんとうしゃにかくにんしてごれんらくします。"],["修正版を送付します。","しゅうせいばんをそうふします。"],["何卒よろしくお願い申し上げます。","なにとぞよろしくおねがいもうしあげます。"],["先ほどの件、承知いたしました。","さきほどのけん、しょうちいたしました。"],["出荷予定日をお知らせします。","しゅっかよていびをおしらせします。"],["今週中に回答いたします。","こんしゅうちゅうにかいとういたします。"],["念のため再送いたします。","ねんのためさいそういたします。"],["本件について相談させてください。","ほんけんについてそうだんさせてください。"],["お手数をおかけします。","おてすうをおかけします。"]];
+
+const rnd=n=>Math.floor(Math.random()*n);
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
+const kanaItem=(jp,kana)=>({jp:jp,kana:kana,units:tokenize(kana)});
+const rawItem=s=>({raw:true,units:s.split("").map(c=>({k:c,opts:[c]}))});
+function rawLine(pool,focus){
+  const g=[];
+  for(let n=0;n<5;n++){
+    const len=3+rnd(2);let s="";
+    for(let i=0;i<len;i++){const src=focus&&Math.random()<0.55?focus:pool;s+=src[rnd(src.length)];}
+    g.push(s);
+  }
+  return rawItem(g.join(" "));
+}
+const defRomaji=kana=>tokenize(kana).map(u=>u.opts[0]).join("");
+
+const COURSES=[
+  {id:"home",no:"1",name:"ホーム段",ds:"指の定位置 ASDF JKL;",gen:()=>({items:Array.from({length:6},()=>rawLine("asdfjkl;","asdfghjkl;"))})},
+  {id:"upper",no:"2",name:"上段をたす",ds:"Q〜P の段まで",gen:()=>({items:Array.from({length:6},()=>rawLine("asdfghjkl","qwertyuiop"))})},
+  {id:"lower",no:"3",name:"下段をたす",ds:"Z〜/ の段まで",gen:()=>({items:Array.from({length:6},()=>rawLine("asdfghjkl","zxcvbnm,."))})},
+  {id:"vowel",no:"4",name:"母音とホーム段",ds:"あさ・かお・すし など",gen:()=>({items:shuffle(VOWEL).slice(0,12).map(k=>kanaItem(k,k))})},
+  {id:"words",no:"5",name:"よく使う言葉",ds:"確認・資料・連絡 など",gen:()=>({items:shuffle(WORDS).slice(0,12).map(w=>kanaItem(w[0],w[1]))})},
+  {id:"sent",no:"6",name:"仕事の文章",ds:"メールでよく打つ一文",gen:()=>({items:shuffle(SENT).slice(0,5).map(w=>kanaItem(w[0],w[1]))})},
+  {id:"weak",no:"★",name:"苦手キー集中",ds:"記録から自動で出題",gen:genWeak}
+];
+const COURSE={};COURSES.forEach(c=>{COURSE[c.id]=c;});
+
+function weakKeys(min){
+  return Object.keys(store.keys).filter(k=>k!==" ").map(k=>{const v=store.keys[k];return {k:k,n:v.n,miss:v.miss,rate:v.n?v.miss/v.n:0};})
+    .filter(x=>x.n>=(min||5)&&x.miss>=2).sort((a,b)=>b.rate-a.rate||b.miss-a.miss);
+}
+function genWeak(){
+  const w=weakKeys(5).slice(0,4).map(x=>x.k);
+  if(!w.length) return {items:shuffle(WORDS).slice(0,10).map(x=>kanaItem(x[0],x[1])),note:"まだ記録が少ないので、よく使う言葉から出題しています。他のコースで練習すると、ここに苦手キーが集まります。"};
+  const set=new Set(w);
+  const pool=WORDS.concat(VOWEL.map(k=>[k,k])).map(p=>{const r=defRomaji(p[1]);let s=0;for(const c of r) if(set.has(c)) s++;return {p:p,s:s};})
+    .filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,24);
+  const picks=shuffle(pool);
+  const items=[];let j=0;
+  for(let i=0;i<10;i++){
+    if(i%3===2||!picks.length) items.push(rawLine("asdfjkl",w.join("")));
+    else{const x=picks[j++%picks.length];items.push(kanaItem(x.p[0],x.p[1]));}
+  }
+  return {items:items,note:"苦手キー："+w.map(lab).join("・")+" を多めに出題しています。"};
+}
+
+// ---------- storage ----------
+const SKEY="mienai-uchi-v1";
+function load(){
+  let s=null;
+  try{s=JSON.parse(localStorage.getItem(SKEY)||"null");}catch(e){}
+  if(!s||typeof s!=="object") s={};
+  s.keys=s.keys||{};s.pairs=s.pairs||{};s.hist=s.hist||[];
+  s.set=Object.assign({fingers:true,course:"home",calm:true,short:true},s.set||{});
+  // 過去に保存された自動ヒント設定もすべて無効化する。
+  s.set.hint=-1;
+  if(!COURSE[s.set.course]) s.set.course="home";
+  return s;
+}
+function save(){try{localStorage.setItem(SKEY,JSON.stringify(store));}catch(e){}}
+const store=load();
+function rec(k,miss,got){
+  if(!k||!KEY[k]) return;
+  const v=store.keys[k]||(store.keys[k]={n:0,miss:0});
+  v.n++;
+  if(miss){v.miss++;const p=k+">"+got;store.pairs[p]=(store.pairs[p]||0)+1;}
+}
+
+// ---------- dom ----------
+const $=id=>document.getElementById(id);
+const els={courses:$("courses"),meta:$("meta"),jp:$("jp"),kana:$("kana"),romaji:$("romaji"),fb:$("fb"),fbMain:$("fbMain"),fbHint:$("fbHint"),prompt:$("prompt"),summary:$("summary"),veil:$("veil"),kb:$("kb"),kbHeat:$("kbHeat"),weakList:$("weakList"),pairList:$("pairList"),hist:$("hist"),reset:$("reset"),fingerBtn:$("fingerBtn"),calmBtn:$("calmBtn"),shortBtn:$("shortBtn"),practiceActions:$("practiceActions"),pausePanel:$("pausePanel"),recordsFold:$("recordsFold"),keyGuide:$("keyGuide")};
+
+function buildKb(el){
+  let h='<div class="kb-rows">';
+  ROWS.forEach(row=>{
+    h+='<div class="kb-row" style="--off:'+row.off+'">';
+    row.keys.forEach(k=>{h+='<div class="key f-'+FCLS[KEY[k].f]+(k==="f"||k==="j"?" bump":"")+'" data-k="'+esc(k)+'"><span>'+esc(lab(k))+"</span></div>";});
+    h+="</div>";
+  });
+  h+='<div class="kb-row space-row"><div class="key f-thumb space" data-k=" "><span>スペース</span></div></div></div>';
+  el.innerHTML=h;
+  const map={};el.querySelectorAll(".key").forEach(n=>{map[n.dataset.k]=n;});
+  return map;
+}
+const K=buildKb(els.kb);
+const KH=buildKb(els.kbHeat);
+
+function renderCourses(){
+  els.courses.innerHTML=COURSES.map(c=>'<button class="course" data-c="'+c.id+'" aria-pressed="'+(round&&round.course.id===c.id)+'"><span class="no">'+c.no+'</span><span class="nm">'+esc(c.name)+'</span><span class="ds">'+esc(c.ds)+"</span></button>").join("");
+}
+els.courses.addEventListener("click",e=>{const b=e.target.closest(".course");if(b) startRound(b.dataset.c);});
+
+// settings
+function applySettings(){
+  els.kb.classList.toggle("fingers",!!store.set.fingers);
+  els.fingerBtn.setAttribute("aria-pressed",String(!!store.set.fingers));
+  els.calmBtn.setAttribute("aria-pressed",String(!!store.set.calm));
+  els.calmBtn.textContent="気楽モード "+(store.set.calm?"ON":"OFF");
+  els.shortBtn.setAttribute("aria-pressed",String(!!store.set.short));
+  els.shortBtn.textContent="短め練習 "+(store.set.short?"ON":"OFF");
+  $("kb").classList.toggle("calm",!!store.set.calm);
+  document.querySelector(".practice").classList.toggle("is-calm",!!store.set.calm);
+  $("modeDesc").textContent=store.set.calm
+    ?"気楽モード：ミスの赤い演出と練習中の成績表示を控え、記録は閉じておきます。"
+    :"通常モード：ミスと正確率も確認できます。気になるときは気楽モードへ戻せます。";
+}
+els.fingerBtn.addEventListener("click",()=>{store.set.fingers=!store.set.fingers;save();applySettings();});
+els.calmBtn.addEventListener("click",()=>{
+  store.set.calm=!store.set.calm;save();applySettings();
+  els.recordsFold.open=!store.set.calm;
+  if(view==="typing"){round.err=false;renderMeta();renderPrompt();setIdle();clearKeys(false);els.keyGuide.hidden=true;hideHint();}
+});
+els.shortBtn.addEventListener("click",()=>{
+  store.set.short=!store.set.short;save();applySettings();
+  // 長さの変更は次のラウンドから適用し、進行中の練習はそのまま続けられます。
+  if(view==="typing") els.fbMain.textContent="練習の長さは次の開始時から変わります。";
+});
+document.addEventListener("click",e=>{const b=e.target.closest("button");if(b&&e.detail>0&&b!==els.veil) setTimeout(()=>b.blur(),0);});
+
+// ---------- round ----------
+let round=null,engine=null,view="typing";
+const TIP="焦らず、一文字ずつ。迷ったらFとJの突起に指を戻しましょう。ヒントはいつでも手動で見られます。";
+
+function setIdle(){
+  els.fbMain.classList.remove("faded");
+  els.fbMain.innerHTML='<span class="tag tip">ヒント</span>'+esc(round&&round.note?round.note:TIP);
+}
+function startRound(id){
+  const c=COURSE[id]||COURSE.home;
+  store.set.course=c.id;save();
+  const g=c.gen();
+  let items=g.items;
+  if(store.set.short){
+    const limit=c.id==="sent"?1:["words","vowel","weak"].includes(c.id)?4:3;
+    items=items.slice(0,limit).map(it=>it.raw?rawItem(it.units.map(u=>u.k).join("").split(" ").slice(0,2).join(" ")):it);
+  }
+  round={course:c,items:items,note:g.note||"",i:0,correct:0,miss:0,started:false,t0:0,pauseMs:0,pauseStart:0,pairs:{},keyMiss:{},err:false};
+  view="typing";
+  els.pausePanel.hidden=true;
+  els.practiceActions.hidden=false;
+  clearKeys(true);els.keyGuide.hidden=true;
+  els.summary.hidden=true;els.prompt.hidden=false;els.fb.hidden=false;
+  setIdle();
+  renderCourses();
+  loadItem();
+  updVeil();
+}
+function loadItem(){
+  engine=new Engine(round.items[round.i].units);
+  round.err=false;
+  setIdle();
+  renderPrompt();renderMeta();
+  clearKeys(false);els.keyGuide.hidden=true;
+  hideHint();
+}
+function acc(){const t=round.correct+round.miss;return t?Math.round(round.correct/t*1000)/10:null;}
+function renderMeta(){
+  const a=acc();
+  const common="<b>"+esc(round.course.name)+"</b><span>"+(round.i+1)+" / "+round.items.length+" 問</span>";
+  els.meta.innerHTML=store.set.calm?common+"<span>正しく打てた "+round.correct+" 回</span>":common+"<span>正確率 "+(a==null?"—":a+"%")+"</span><span>ミス "+round.miss+"</span>";
+}
+function chSpan(c,cls){const sp=c===" ";return '<span class="ch '+cls+(sp?" sp":"")+'">'+(sp?"·":esc(c))+"</span>";}
+function renderPrompt(){
+  const it=round.items[round.i];
+  const kanaOnly=!it.raw&&it.jp===it.kana;
+  els.jp.hidden=!!it.raw||kanaOnly;
+  els.jp.textContent=it.jp||"";
+  els.kana.hidden=!!it.raw;
+  els.kana.classList.toggle("big",kanaOnly);
+  els.romaji.classList.toggle("big",!!it.raw);
+  if(!it.raw) els.kana.innerHTML=engine.u.map((u,i)=>'<span class="'+(i<engine.i?"done":i===engine.i?"cur":"")+'">'+esc(u.k)+"</span>").join("");
+  let h="",cur=false;
+  engine.u.forEach((u,i)=>{
+    let d="",t="";
+    if(i<engine.i) d=engine.typed[i];
+    else if(i===engine.i){d=engine.buf;t=engine.disp(i,engine.buf).slice(engine.buf.length);}
+    else t=engine.disp(i,"");
+    for(const c of d) h+=chSpan(c,"done");
+    for(const c of t){h+=chSpan(c,cur?"":"cur"+(round.err?" err":""));cur=true;}
+  });
+  els.romaji.innerHTML=h;
+}
+
+// key visuals
+function clearKeys(all){
+  Object.values(K).forEach(n=>{n.classList.remove("is-next","is-miss");if(all){n.classList.remove("is-roundmiss");n.removeAttribute("data-n");}});
+}
+function flash(k){const n=K[k];if(!n) return;n.classList.remove("hit");void n.offsetWidth;n.classList.add("hit");}
+function hideHint(){els.fbHint.textContent="";Object.values(K).forEach(n=>n.classList.remove("is-next"));}
+function showHint(){
+  if(view!=="typing"||!engine) return;
+  const e=engine.expected();if(!e||!KEY[e]) return;
+  if(K[e]) K[e].classList.add("is-next");
+  els.fbHint.innerHTML='次は <kbd class="kk nx">'+esc(lab(e))+"</kbd>　"+FN[KEY[e].f]+"・"+ROWN[KEY[e].r];
+}
+$("revealBtn").addEventListener("click",()=>{if(view==="typing"){hideHint();showHint();}});
+$("pauseBtn").addEventListener("click",pauseRound);
+$("resumeBtn").addEventListener("click",resumeRound);
+function pauseRound(){
+  if(view!=="typing") return;
+  round.pauseStart=round.started?performance.now():0;
+  view="paused";hideHint();els.pausePanel.hidden=false;updVeil();
+}
+function resumeRound(){
+  if(view!=="paused") return;
+  if(round.pauseStart) round.pauseMs+=performance.now()-round.pauseStart;
+  round.pauseStart=0;
+  view="typing";els.pausePanel.hidden=true;updVeil();
+}
+
+function onChar(ch){
+  if(view!=="typing"||!engine) return;
+  if(!round.started){round.started=true;round.t0=performance.now();}
+  const exp=engine.expected();
+  const ok=engine.feed(ch);
+  flash(ch);
+  if(ok){
+    round.correct++;rec(ch,false);
+    round.err=false;
+    hideHint();clearKeys(false);
+    els.keyGuide.hidden=true;
+    if(store.set.calm) setIdle();
+    els.fbMain.classList.add("faded");
+    if(engine.done){
+      round.i++;
+      if(round.i%2===0) save();
+      if(round.i>=round.items.length){finish();return;}
+      loadItem();return;
+    }
+    renderPrompt();renderMeta();
+  }else{
+    round.miss++;rec(exp,true,ch);
+    const p=exp+">"+ch;round.pairs[p]=(round.pairs[p]||0)+1;
+    round.keyMiss[exp]=(round.keyMiss[exp]||0)+1;
+    round.err=!store.set.calm;
+    hideHint();
+    Object.values(K).forEach(n=>n.classList.remove("is-miss"));
+    if(K[ch]&&ch!==exp) K[ch].classList.add("is-miss");
+    if(K[exp]) K[exp].classList.add("is-next");
+    els.keyGuide.innerHTML='<span><i class="swatch" aria-hidden="true"></i>押したキー <kbd class="kk">'+esc(lab(ch))+'</kbd></span>'+
+      '<span><i class="swatch next" aria-hidden="true"></i>正しいキー <kbd class="kk">'+esc(lab(exp))+'</kbd></span>';
+    els.keyGuide.hidden=false;
+    const a=KEY[exp],b=KEY[ch];
+    els.fbMain.classList.remove("faded");
+    els.fbMain.innerHTML=store.set.calm
+      ?'<span class="tag tip">確認</span>次は <kbd class="kk nx">'+esc(lab(exp))+'</kbd>'+(a?'（'+FN[a.f]+'）':'')+'。位置を確かめて、もう一度押してみましょう。'
+      :'<span class="tag miss">ミス</span><kbd class="kk miss">'+esc(lab(ch))+"</kbd> を押しました"+(b?"（"+FN[b.f]+"）":"")+"　→　正しくは "+'<kbd class="kk ok">'+esc(lab(exp))+"</kbd>"+(a?"（"+FN[a.f]+"）":"")+'<span class="diag">'+esc(diag(exp,ch))+"</span>";
+    renderPrompt();renderMeta();
+  }
+}
+
+function finish(){
+  view="summary";hideHint();clearKeys(true);els.keyGuide.hidden=true;
+  els.practiceActions.hidden=true;
+  const ms=Math.max(1,performance.now()-round.t0-round.pauseMs);
+  const kpm=Math.round(round.correct/(ms/60000));
+  const a=acc()||0;
+  store.hist.unshift({t:Date.now(),c:round.course.id,acc:a,kpm:kpm,miss:round.miss});
+  store.hist=store.hist.slice(0,30);
+  save();
+  if(!store.set.calm) Object.keys(round.keyMiss).forEach(k=>{if(K[k]){K[k].classList.add("is-roundmiss");K[k].setAttribute("data-n",round.keyMiss[k]);}});
+  const msg=store.set.calm
+    ?"今日の分はこれで完了です。少しずつキーの場所を確かめていきましょう。ここで終えても、もう一回練習しても大丈夫です。"
+    :a>=97?"とても正確です。この調子なら、次のコースに進んでもよさそうです。"
+    :a>=90?"いい調子です。押し間違いを確認して、必要ならもう一度同じコースを試してみましょう。"
+    :"まずは正確さを優先して、ゆっくり打ってみましょう。速さはあとから自然についてきます。";
+  const pairs=Object.keys(round.pairs).sort((x,y)=>round.pairs[y]-round.pairs[x]).slice(0,3);
+  const idx=COURSES.indexOf(round.course);const next=COURSES[(idx+1)%COURSES.length];
+  const pairList=pairs.length?'<ul class="plist">'+pairs.map(p=>{const s=p.split(">");return "<li><span><kbd class=\"kk ok\">"+esc(lab(s[0]))+'</kbd> のところで <kbd class="kk miss">'+esc(lab(s[1]))+"</kbd> を押した ×"+round.pairs[p]+'</span><span class="d">'+esc(shortDiag(s[0],s[1]))+"</span></li>";}).join("")+"</ul>":'<p class="sum-msg">押し間違いはありませんでした。</p>';
+  const stats=store.set.calm
+    ?'<div class="sum-nums calm"><div><span class="n">'+round.correct+'</span><span class="l">正しく打てた回数</span></div><div><span class="n">'+round.items.length+'</span><span class="l">終えたお題</span></div></div>'
+    :'<div class="sum-nums"><div><span class="n">'+a+'<small>%</small></span><span class="l">正確率</span></div><div><span class="n">'+kpm+'</span><span class="l">打/分</span></div><div><span class="n">'+round.miss+'</span><span class="l">ミス</span></div></div>';
+  const review=store.set.calm
+    ?'<div class="sum-miss"><details><summary>押し間違いを振り返る（任意）</summary>'+pairList+'</details></div>'
+    :'<div class="sum-miss"><h3>今回の押し間違い</h3>'+pairList+'</div>';
+  els.summary.innerHTML=stats+'<p class="sum-msg">'+msg+'</p>'+review+
+    '<div class="sum-actions"><button class="btn primary" id="again">同じコースをもう一回</button><button class="btn" id="nextC">次のコース：'+esc(next.name)+'</button></div>';
+  els.prompt.hidden=true;els.fb.hidden=true;els.summary.hidden=false;
+  $("again").addEventListener("click",()=>startRound(round.course.id));
+  $("nextC").addEventListener("click",()=>startRound(next.id));
+  updVeil();
+  renderRecords();
+}
+
+// ---------- records ----------
+let confirmReset=false;
+function renderRecords(){
+  Object.keys(KH).forEach(k=>{
+    const n=KH[k],v=store.keys[k];
+    n.classList.remove("heat","hot");n.style.removeProperty("--h");n.removeAttribute("title");
+    if(v&&v.n>=3){
+      const r=v.miss/v.n;
+      if(v.miss>0){const h=Math.round(Math.min(1,r/0.25)*85);n.classList.add("heat");n.style.setProperty("--h",h+"%");if(h>=50) n.classList.add("hot");}
+      n.title=lab(k)+"：ミス "+v.miss+" / "+v.n+"回";
+    }
+  });
+  const w=weakKeys(3).slice(0,5);
+  els.weakList.innerHTML=w.length?'<ul class="plist">'+w.map(x=>'<li><span><kbd class="kk">'+esc(lab(x.k))+"</kbd>　ミス率 "+Math.round(x.rate*100)+"%（"+x.miss+" / "+x.n+'回）</span><span class="d">'+FN[KEY[x.k].f]+"・"+ROWN[KEY[x.k].r]+"</span></li>").join("")+"</ul>":'<p class="empty">まだ記録がありません。練習すると、ここに間違えやすいキーが並びます。</p>';
+  const ps=Object.keys(store.pairs).filter(p=>store.pairs[p]>=2).sort((a,b)=>store.pairs[b]-store.pairs[a]).slice(0,5);
+  els.pairList.innerHTML=ps.length?'<ul class="plist">'+ps.map(p=>{const s=p.split(">");return '<li><span><kbd class="kk ok">'+esc(lab(s[0]))+'</kbd> のところで <kbd class="kk miss">'+esc(lab(s[1]))+"</kbd> ×"+store.pairs[p]+'</span><span class="d">'+esc(shortDiag(s[0],s[1]))+"</span></li>";}).join("")+"</ul>":'<p class="empty">同じ押し間違いが2回以上あると、ここに表示されます。</p>';
+  if(store.hist.length){
+    els.hist.innerHTML='<table><thead><tr><th>日時</th><th>コース</th><th class="num">正確率</th><th class="num">打/分</th><th class="num">ミス</th></tr></thead><tbody>'+store.hist.slice(0,10).map(r=>{const d=new Date(r.t);const pad=n=>String(n).padStart(2,"0");return "<tr><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+pad(d.getHours())+":"+pad(d.getMinutes())+"</td><td>"+esc((COURSE[r.c]||{}).name||r.c)+'</td><td class="num">'+r.acc+'%</td><td class="num">'+r.kpm+'</td><td class="num">'+r.miss+"</td></tr>";}).join("")+"</tbody></table>";
+  }else els.hist.innerHTML='<p class="empty">1回分の練習を終えると、ここに正確率と速さが記録されます。</p>';
+  renderReset();
+}
+function renderReset(){
+  const has=store.hist.length||Object.keys(store.keys).length;
+  if(!has){els.reset.innerHTML="";return;}
+  els.reset.innerHTML=confirmReset?'<span>記録をすべて消しますか？</span><button class="btn danger" id="rsYes">消す</button><button class="btn" id="rsNo">やめる</button>':'<button class="btn" id="rsAsk">記録を消す</button>';
+  if(confirmReset){
+    $("rsYes").addEventListener("click",()=>{store.keys={};store.pairs={};store.hist=[];save();confirmReset=false;renderRecords();});
+    $("rsNo").addEventListener("click",()=>{confirmReset=false;renderReset();});
+  }else $("rsAsk").addEventListener("click",()=>{confirmReset=true;renderReset();});
+}
+
+// ---------- input ----------
+const CODE={Minus:"-",Comma:",",Period:".",Slash:"/",Semicolon:";",Space:" "};
+function codeToChar(e){
+  const c=e.code||"";
+  if(/^Key[A-Z]$/.test(c)) return c.slice(3).toLowerCase();
+  if(/^Digit[0-9]$/.test(c)) return c.slice(5);
+  if(CODE[c]) return CODE[c];
+  if(e.key&&e.key.length===1){const k=e.key.toLowerCase();if(KEY[k]) return k;}
+  return null;
+}
+document.addEventListener("keydown",e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  if(view==="summary"){
+    if((e.code==="Space"||e.code==="Enter")&&!(e.target instanceof HTMLElement&&e.target.closest("button,summary"))){e.preventDefault();startRound(round.course.id);}
+    return;
+  }
+  if(view==="paused"){
+    if(codeToChar(e)!==null) e.preventDefault();
+    return;
+  }
+  if(e.code==="Escape"){startRound(round.course.id);return;}
+  const ch=codeToChar(e);
+  if(ch==null) return;
+  e.preventDefault();
+  if(e.repeat) return;
+  onChar(ch);
+});
+
+// focus veil + touch notice
+const isTouch=window.matchMedia&&window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+if(isTouch) $("touchNote").hidden=false;
+function updVeil(){els.veil.hidden=isTouch||view!=="typing"||document.hasFocus();}
+window.addEventListener("focus",updVeil);
+window.addEventListener("blur",updVeil);
+els.veil.addEventListener("click",()=>{window.focus();els.veil.hidden=true;});
+
+// boot
+applySettings();
+els.recordsFold.open=!store.set.calm;
+startRound(store.set.course);
+renderRecords();
+setTimeout(updVeil,300);
+
+// test hook (pure functions only)
+window.__mienai={tokenize:tokenize,Engine:Engine};
+})();
+</script>
+
+</body></html>
