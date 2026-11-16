@@ -214,7 +214,7 @@ td.num,th.num{text-align:right}
   <section aria-label="コース">
     <div class="today">
       <button class="btn primary" id="todayBtn" type="button">今日の1セットを始める</button>
-      <span class="practice-note">苦手キー集中のあと、実務の文を1〜2文。3分前後で終わります。</span>
+      <span class="practice-note" id="todayNote">苦手キー集中のあと、実務の文を1〜2文。3分前後で終わります。</span>
     </div>
     <div class="course-groups" id="courses"></div>
   </section>
@@ -312,6 +312,11 @@ td.num,th.num{text-align:right}
         <div><h3>ミスの多いキー</h3><div id="weakList"></div></div>
         <div><h3>よくある押し間違い</h3><div id="pairList"></div></div>
       </div>
+    </div>
+    <div>
+      <h3>日ごとの推移（直近14日）</h3>
+      <div class="tbl-wrap" id="days"></div>
+      <p class="note">正確率が上がり、打/分が落ちていなければ、順調に進んでいる目安になります。</p>
     </div>
     <div>
       <h3>最近の練習</h3>
@@ -530,7 +535,7 @@ function load(){
   let s=null;
   try{s=JSON.parse(localStorage.getItem(SKEY)||"null");}catch(e){}
   if(!s||typeof s!=="object") s={};
-  s.keys=s.keys||{};s.pairs=s.pairs||{};s.hist=s.hist||[];s.real=s.real||[];
+  s.keys=s.keys||{};s.pairs=s.pairs||{};s.hist=s.hist||[];s.real=s.real||[];s.days=s.days||{};s.setDays=s.setDays||[];
   s.set=Object.assign({fingers:true,course:"home",calm:true,short:true,hideRomaji:false},s.set||{});
   if(s.set.course==="sent") s.set.course="biz";
   // 過去に保存された自動ヒント設定もすべて無効化する。
@@ -614,6 +619,13 @@ function setIdle(){
   els.fbMain.innerHTML='<span class="tag tip">ヒント</span>'+esc(round&&round.note?round.note:TIP);
 }
 // 今日の1セット：苦手キー集中 → いちばん長く練習していない文章コースを1文
+const dayKey=(t)=>{const d=t?new Date(t):new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");};
+function renderToday(){
+  const today=dayKey(),wk=[];for(let i=0;i<7;i++) wk.push(dayKey(Date.now()-i*864e5));
+  const n=store.setDays.filter(d=>wk.includes(d)).length;
+  const done=store.setDays.includes(today);
+  $("todayNote").textContent=(done?"今日の1セットは終わっています。":"苦手キー集中のあと、実務の文を1〜2文。3分前後で終わります。")+(n?"（直近7日で "+n+" 日）":"");
+}
 function startToday(){
   const work=COURSES.filter(c=>c.grp==="work").map(c=>c.id);
   const last=id=>{const i=store.hist.findIndex(r=>(r.c==="sent"?"biz":r.c)===id);return i<0?Infinity:i;};
@@ -769,6 +781,11 @@ function finish(){
   const a=acc()||0;
   store.hist.unshift({t:Date.now(),c:round.course.id,acc:a,kpm:kpm,miss:round.miss});
   store.hist=store.hist.slice(0,30);
+  const dk=dayKey(),dd=store.days[dk]||(store.days[dk]={r:0,c:0,m:0,ms:0});
+  dd.r++;dd.c+=round.correct;dd.m+=round.miss;dd.ms+=Math.round(ms);
+  Object.keys(store.days).sort().reverse().slice(60).forEach(k=>{delete store.days[k];});
+  if(round.set&&round.set.i+1>=round.set.steps.length&&!store.setDays.includes(dk)){store.setDays.unshift(dk);store.setDays=store.setDays.slice(0,60);}
+  renderToday();
   save();
   if(!store.set.calm) Object.keys(round.keyMiss).forEach(k=>{if(K[k]){K[k].classList.add("is-roundmiss");K[k].setAttribute("data-n",round.keyMiss[k]);}});
   const msg=store.set.calm
@@ -825,6 +842,8 @@ function renderRecords(){
   if(store.hist.length){
     els.hist.innerHTML='<table><thead><tr><th>日時</th><th>コース</th><th class="num">正確率</th><th class="num">打/分</th><th class="num">ミス</th></tr></thead><tbody>'+store.hist.slice(0,10).map(r=>{const d=new Date(r.t);const pad=n=>String(n).padStart(2,"0");return "<tr><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+pad(d.getHours())+":"+pad(d.getMinutes())+"</td><td>"+esc((COURSE[r.c]||{}).name||r.c)+'</td><td class="num">'+r.acc+'%</td><td class="num">'+r.kpm+'</td><td class="num">'+r.miss+"</td></tr>";}).join("")+"</tbody></table>";
   }else els.hist.innerHTML='<p class="empty">1回分の練習を終えると、ここに正確率と速さが記録されます。</p>';
+  const dks=Object.keys(store.days).sort().reverse().slice(0,14);
+  $("days").innerHTML=dks.length?'<table><thead><tr><th>日付</th><th class="num">回数</th><th class="num">正確率</th><th class="num">打/分</th></tr></thead><tbody>'+dks.map(k=>{const d=store.days[k],tot=d.c+d.m;const p=k.split("-");return "<tr><td>"+(+p[1])+"/"+(+p[2])+'</td><td class="num">'+d.r+'</td><td class="num">'+(tot?Math.round(d.c/tot*100):0)+'%</td><td class="num">'+Math.round(d.c/(Math.max(1,d.ms)/60000))+"</td></tr>";}).join("")+"</tbody></table>":'<p class="empty">練習した日ごとに、正確率と速さがここにまとまります。</p>';
   renderReset();
 }
 function renderReset(){
@@ -832,7 +851,7 @@ function renderReset(){
   if(!has){els.reset.innerHTML="";return;}
   els.reset.innerHTML=confirmReset?'<span>記録をすべて消しますか？</span><button class="btn danger" id="rsYes">消す</button><button class="btn" id="rsNo">やめる</button>':'<button class="btn" id="rsAsk">記録を消す</button>';
   if(confirmReset){
-    $("rsYes").addEventListener("click",()=>{store.keys={};store.pairs={};store.hist=[];store.real=[];save();renderReal();confirmReset=false;renderRecords();});
+    $("rsYes").addEventListener("click",()=>{store.keys={};store.pairs={};store.hist=[];store.real=[];store.days={};store.setDays=[];save();renderReal();renderToday();confirmReset=false;renderRecords();});
     $("rsNo").addEventListener("click",()=>{confirmReset=false;renderReset();});
   }else $("rsAsk").addEventListener("click",()=>{confirmReset=true;renderReset();});
 }
@@ -923,7 +942,7 @@ function renderReal(){
   el.innerHTML='<table><thead><tr><th>日時</th><th>出題</th><th class="num">1分あたり</th><th class="num">秒</th><th class="num">BackSpace</th></tr></thead><tbody>'+
     store.real.slice(0,8).map(r=>{const d=new Date(r.t);return "<tr><td>"+(d.getMonth()+1)+"/"+d.getDate()+" "+pad(d.getHours())+":"+pad(d.getMinutes())+"</td><td>"+esc(RNAME[r.src]||r.src)+'</td><td class="num">'+r.cpm+'</td><td class="num">'+(r.ms/1000).toFixed(1)+'</td><td class="num">'+r.bs+"</td></tr>";}).join("")+"</tbody></table>";
 }
-realNew();renderReal();
+realNew();renderReal();renderToday();
 
 // focus veil + touch notice
 const isTouch=window.matchMedia&&window.matchMedia("(hover: none) and (pointer: coarse)").matches;
