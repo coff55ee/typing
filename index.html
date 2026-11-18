@@ -7,7 +7,7 @@
 <style>
 /* Layout: one-column workbench. Course picker, then the practice card (prompt, instant feedback, keycap keyboard) as the hero; records and habits below. */
 :root{
-  --bg:#ECEFF3; --surface:#FFFFFF; --surface-2:#F3F5F8; --ink:#17202B; --ink-2:#556170; --ink-3:#8E98A5; --line:#D7DDE4;
+  --bg:#ECEFF3; --surface:#FFFFFF; --surface-2:#F3F5F8; --ink:#17202B; --ink-2:#556170; --ink-3:#6B7583; --line:#D7DDE4;
   --accent:#2453C4; --accent-soft:#DFE7FB; --on-accent:#FFFFFF;
   --ok:#1C8253; --ok-soft:#DAF0E3; --miss:#C5352B; --miss-soft:#FBE0DD; --on-miss:#FFFFFF;
   --key:#FCFDFE; --key-edge:#C5CDD7; --key-ink:#28313D; --wrong-key:#B66B18; --wrong-key-ring:#F3D69C;
@@ -17,7 +17,7 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#11151B; --surface:#192029; --surface-2:#202833; --ink:#E5E9EF; --ink-2:#A0AAB7; --ink-3:#6E7886; --line:#2C3541;
+    --bg:#11151B; --surface:#192029; --surface-2:#202833; --ink:#E5E9EF; --ink-2:#A0AAB7; --ink-3:#848E9C; --line:#2C3541;
     --accent:#86A6F4; --accent-soft:#223152; --on-accent:#0F1830;
     --ok:#62CC97; --ok-soft:#173428; --miss:#F27D72; --miss-soft:#3F201D; --on-miss:#2A0E0B;
     --key:#232B36; --key-edge:#3A4452; --key-ink:#DCE2EA; --wrong-key:#EFB85A; --wrong-key-ring:#654720;
@@ -26,7 +26,7 @@
   }
 }
 :root[data-theme="dark"]{
-  --bg:#11151B; --surface:#192029; --surface-2:#202833; --ink:#E5E9EF; --ink-2:#A0AAB7; --ink-3:#6E7886; --line:#2C3541;
+  --bg:#11151B; --surface:#192029; --surface-2:#202833; --ink:#E5E9EF; --ink-2:#A0AAB7; --ink-3:#848E9C; --line:#2C3541;
   --accent:#86A6F4; --accent-soft:#223152; --on-accent:#0F1830;
   --ok:#62CC97; --ok-soft:#173428; --miss:#F27D72; --miss-soft:#3F201D; --on-miss:#2A0E0B;
   --key:#232B36; --key-edge:#3A4452; --key-ink:#DCE2EA; --wrong-key:#EFB85A; --wrong-key-ring:#654720;
@@ -55,6 +55,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .course[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
 .course[aria-pressed="true"] .no{color:var(--accent)}
 
+.practice{scroll-margin-top:8px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px clamp(14px,3vw,24px) 20px}
 .practice{display:grid;gap:16px}
 .bar{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:space-between;align-items:center}
@@ -64,7 +65,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .toggle{border:1px solid var(--line);border-radius:8px;background:transparent;padding:4px 10px;font-size:12px}
 .toggle[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
 
-.stage{position:relative;display:grid;gap:12px;min-height:220px}
+.stage{position:relative;display:grid;gap:12px;min-height:170px}
 .prompt{display:grid;gap:4px;min-width:0}
 .jp{font-size:clamp(20px,4.2vw,27px);font-weight:700;line-height:1.5}
 .kana{font-size:16px;color:var(--ink-2);letter-spacing:.04em}
@@ -73,7 +74,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .kana.big{font-size:clamp(24px,5vw,32px);font-weight:700;color:var(--ink)}
 .kana .done{color:var(--ink-3)}
 .kana .cur{color:var(--accent);text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:2px}
-.romaji{font-family:var(--font-mono);font-weight:500;font-size:clamp(20px,4.4vw,28px);line-height:1.55;word-break:break-all;letter-spacing:.03em;margin-top:4px}
+.romaji{font-family:var(--font-mono);font-weight:500;font-size:clamp(20px,4.4vw,26px);line-height:1.55;word-break:break-all;letter-spacing:.03em;margin-top:4px}
 .romaji:empty{min-height:1.55em}
 .romaji.big{font-size:clamp(26px,6vw,36px);letter-spacing:.08em}
 .ch.done{color:var(--ink-3)}
@@ -83,7 +84,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 .ch{display:inline-block}
 
-.fb{background:var(--surface-2);border-radius:10px;padding:10px 14px;font-size:14px;min-height:5.2em;display:grid;gap:4px;align-content:start}
+.fb{background:var(--surface-2);border-radius:10px;padding:8px 14px;font-size:14px;min-height:3.6em;display:grid;gap:4px;align-content:start}
 #fbMain{transition:opacity .25s}
 #fbMain.faded{opacity:.55}
 .fb-hint{color:var(--accent);font-weight:700}
@@ -115,8 +116,8 @@ kbd.kk.nx{background:var(--accent-soft);color:var(--accent);border-color:var(--a
 
 .kb{container-type:inline-size;width:100%;max-width:660px;margin-inline:auto}
 .kb.mini{max-width:420px;margin-inline:0}
-.kb-rows{--k:min(54px,7.4vw);display:grid;gap:calc(var(--k)*.1)}
-@supports (width:1cqw){.kb-rows{--k:calc(100cqw / 11.4)}}
+.kb-rows{--k:min(54px,7.4vw,6.2vh);display:grid;gap:calc(var(--k)*.1)}
+@supports (width:1cqw){.kb-rows{--k:min(calc(100cqw / 11.4),6.2vh)}}
 .kb-row{display:flex;gap:calc(var(--k)*.1);padding-left:calc(var(--k)*var(--off,0))}
 .space-row{padding-left:calc(var(--k)*3.3)}
 .key{position:relative;flex:none;width:calc(var(--k)*.9);height:calc(var(--k)*.84);display:grid;place-items:center;background:var(--key);border:1px solid var(--key-edge);border-bottom-width:3px;border-radius:calc(var(--k)*.14);font-family:var(--font-mono);font-weight:500;font-size:max(10px,calc(var(--k)*.32));color:var(--key-ink);transition:background-color .15s,color .15s,border-color .15s}
@@ -185,7 +186,7 @@ td.num,th.num{text-align:right}
 .practice-actions .btn{font-size:12px;padding:6px 10px}
 .btn.subtle{background:var(--surface-2);border-color:var(--line);font-weight:500}
 .practice-note{font-size:12px;color:var(--ink-2);line-height:1.6}
-.mode-desc{color:var(--ink-2);font-size:12px;line-height:1.7;margin-top:-9px}
+.mode-desc{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .pause-panel{position:absolute;inset:0;z-index:3;background:var(--surface);border:1px solid var(--line);border-radius:12px;display:grid;place-items:center;text-align:center;padding:20px}
 .pause-panel>div{display:grid;justify-items:center;gap:12px;max-width:35ch}
 .pause-panel p{color:var(--ink-2);font-size:14px}
@@ -255,7 +256,6 @@ td.num,th.num{text-align:right}
     <div class="practice-actions" id="practiceActions">
       <button class="btn subtle" id="revealBtn" type="button">今のキーのヒントを見る</button>
       <button class="btn subtle" id="pauseBtn" type="button">ひと休み</button>
-      <span class="practice-note">自動ヒントなし。必要なときだけボタンで確認できます。</span>
     </div>
     <div class="kb fingers" id="kb"></div>
     <div class="key-guide" id="keyGuide" hidden aria-live="polite"></div>
@@ -592,6 +592,8 @@ function applySettings(){
   $("modeDesc").textContent=store.set.calm
     ?"気楽モード：ミスの赤い演出と練習中の成績表示を控え、記録は閉じておきます。"
     :"通常モード：ミスと正確率も確認できます。気になるときは気楽モードへ戻せます。";
+  els.calmBtn.title=$("modeDesc").textContent;
+  els.calmBtn.setAttribute("aria-describedby","modeDesc");
 }
 els.fingerBtn.addEventListener("click",()=>{store.set.fingers=!store.set.fingers;save();applySettings();});
 els.calmBtn.addEventListener("click",()=>{
@@ -612,7 +614,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("button");if(b&&e
 
 // ---------- round ----------
 let round=null,engine=null,view="typing";
-const TIP="焦らず、一文字ずつ。迷ったらFとJの突起に指を戻しましょう。ヒントはいつでも手動で見られます。";
+const TIP="焦らず一文字ずつ。迷ったらFとJの突起に指を戻しましょう。";
 
 function setIdle(){
   els.fbMain.classList.remove("faded");
@@ -632,6 +634,14 @@ function startToday(){
   const pick=shuffle(work).sort((a,b)=>last(b)-last(a))[0];
   startRound("weak",{steps:["weak",pick],i:0});
 }
+function showPractice(){
+  const card=document.querySelector(".practice");
+  const r=card.getBoundingClientRect();
+  if(r.top>=0&&r.bottom<=innerHeight) return;
+  const calm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  card.scrollIntoView({block:"start",behavior:calm?"auto":"smooth"});
+}
+let booted=false;
 function startRound(id,set){
   const c=COURSE[id]||COURSE.home;
   if(!set){store.set.course=c.id;save();}
@@ -651,6 +661,7 @@ function startRound(id,set){
   renderCourses();
   loadItem();
   updVeil();
+  if(booted) showPractice();
 }
 function loadItem(){
   engine=new Engine(round.items[round.i].units);
@@ -733,7 +744,7 @@ function resumeRound(){
 
 function onChar(ch){
   if(view!=="typing"||!engine) return;
-  if(!round.started){round.started=true;round.t0=performance.now();}
+  if(!round.started){round.started=true;round.t0=performance.now();if(round.i===0&&engine.i===0) showPractice();}
   const exp=engine.expected();
   const ok=engine.feed(ch);
   flash(ch);
@@ -955,7 +966,7 @@ els.veil.addEventListener("click",()=>{window.focus();els.veil.hidden=true;});
 // boot
 applySettings();
 els.recordsFold.open=!store.set.calm;
-startRound(store.set.course);
+startRound(store.set.course);booted=true;
 renderRecords();
 setTimeout(updVeil,300);
 
